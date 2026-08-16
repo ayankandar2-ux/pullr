@@ -33,14 +33,16 @@ jobs:
         continue-on-error: true
         run: ./gradlew assembleGithubDebug --warning-mode all --stacktrace 2>&1 | tee build_output.txt
 
-      - name: Post build log on failure
-        if: steps.build.outcome == 'failure'
+      - name: Post build log (always)
+        if: always()
         env:
           REPO: ${{ github.repository }}
           SHA: ${{ github.sha }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          tail -c 55000 build_output.txt > build_output_tail.txt
+          echo "build step outcome: ${{ steps.build.outcome }}" > build_output_tail.txt
+          echo "" >> build_output_tail.txt
+          tail -c 50000 build_output.txt >> build_output_tail.txt 2>/dev/null || echo "no build_output.txt" >> build_output_tail.txt
           python3 .github/scripts/post_build_log.py
 
       - name: Fail job if build failed
