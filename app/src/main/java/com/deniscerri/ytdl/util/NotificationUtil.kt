@@ -116,11 +116,11 @@ class NotificationUtil(var context: Context) {
         return notificationBuilder
             .setContentTitle(resources.getString(R.string.downloading))
             .setOngoing(true)
-            .setSmallIcon(android.R.drawable.stat_sys_download)
+            .setSmallIcon(R.drawable.ic_launcher_foreground_large)
             .setLargeIcon(
                 BitmapFactory.decodeResource(
                     resources,
-                    android.R.drawable.stat_sys_download
+                    R.drawable.ic_launcher_foreground_large
                 )
             )
             .setPriority(NotificationCompat.PRIORITY_LOW)
@@ -164,11 +164,11 @@ class NotificationUtil(var context: Context) {
             .setContentTitle(title)
             .setOngoing(true)
             .setCategory(Notification.CATEGORY_PROGRESS)
-            .setSmallIcon(android.R.drawable.stat_sys_download)
+            .setSmallIcon(R.drawable.ic_launcher_foreground_large)
             .setLargeIcon(
                 BitmapFactory.decodeResource(
                     resources,
-                    android.R.drawable.stat_sys_download
+                    R.drawable.ic_launcher_foreground_large
                 )
             )
             .setContentText("")
@@ -218,11 +218,11 @@ class NotificationUtil(var context: Context) {
 
         notificationBuilder
             .setContentTitle(resources.getString(R.string.updating_download_data))
-            .setSmallIcon(android.R.drawable.stat_sys_download)
+            .setSmallIcon(R.drawable.ic_launcher_foreground_large)
             .setLargeIcon(
                 BitmapFactory.decodeResource(
                     resources,
-                    android.R.drawable.stat_sys_download
+                    R.drawable.ic_launcher_foreground_large
                 )
             )
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
@@ -600,11 +600,11 @@ class NotificationUtil(var context: Context) {
             .setContentTitle(resources.getString(R.string.move_temporary_files))
             .setOngoing(true)
             .setCategory(Notification.CATEGORY_PROGRESS)
-            .setSmallIcon(android.R.drawable.stat_sys_download)
+            .setSmallIcon(R.drawable.ic_launcher_foreground_large)
             .setLargeIcon(
                 BitmapFactory.decodeResource(
                     resources,
-                    android.R.drawable.stat_sys_download
+                    R.drawable.ic_launcher_foreground_large
                 )
             )
             .setContentText("")
@@ -634,14 +634,14 @@ class NotificationUtil(var context: Context) {
 
     fun createYTDLUpdateNotification() : Notification{
         val notificationBuilder = getBuilder(DOWNLOAD_MISC_CHANNEL_ID)
-        notificationBuilder.setContentTitle("Updating YT-DLP...")
+        notificationBuilder.setContentTitle(resources.getString(R.string.update_ytdl))
             .setOngoing(true)
             .setCategory(Notification.CATEGORY_EVENT)
-            .setSmallIcon(android.R.drawable.stat_sys_download)
+            .setSmallIcon(R.drawable.ic_launcher_foreground_large)
             .setLargeIcon(
                 BitmapFactory.decodeResource(
                     resources,
-                    android.R.drawable.stat_sys_download
+                    R.drawable.ic_launcher_foreground_large
                 )
             )
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
@@ -657,11 +657,11 @@ class NotificationUtil(var context: Context) {
             .setContentTitle(resources.getString(R.string.update_formats_background))
             .setOngoing(true)
             .setCategory(Notification.CATEGORY_PROGRESS)
-            .setSmallIcon(android.R.drawable.stat_sys_download)
+            .setSmallIcon(R.drawable.ic_launcher_foreground_large)
             .setLargeIcon(
                 BitmapFactory.decodeResource(
                     resources,
-                    android.R.drawable.stat_sys_download
+                    R.drawable.ic_launcher_foreground_large
                 )
             )
             .setContentText("")

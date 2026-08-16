@@ -96,7 +96,7 @@
         <Preference
             app:icon="@drawable/baseline_security_24"
             app:key="security"
-            app:summary="🔐 YTDLnis - Privacy Policy"
+            app:summary="🔐 Pullr - Privacy Policy"
             app:title="@string/security">
             <intent
                 android:action="android.intent.action.VIEW"
