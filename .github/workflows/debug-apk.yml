@@ -29,7 +29,30 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build debug APK
-        run: ./gradlew assembleGithubDebug --warning-mode all
+        id: build
+        continue-on-error: true
+        run: ./gradlew assembleGithubDebug --warning-mode all --stacktrace 2>&1 | tee build_output.txt
+
+      - name: Post build log on failure
+        if: steps.build.outcome == 'failure'
+        run: |
+          python3 -c "
+import json
+with open('build_output.txt') as f:
+    content = f.read()
+tail = content[-55000:]
+with open('comment_body.json', 'w') as out:
+    json.dump({'body': '```\n' + tail + '\n```'}, out)
+"
+          curl -s -X POST \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d @comment_body.json \
+            "https://api.github.com/repos/${{ github.repository }}/commits/${{ github.sha }}/comments"
+
+      - name: Fail job if build failed
+        if: steps.build.outcome == 'failure'
+        run: exit 1
 
       - name: Locate APKs
         run: |
