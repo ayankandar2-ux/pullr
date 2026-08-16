@@ -1,57 +1,21 @@
 <h1 align="center">
-	<img src="fastlane/metadata/android/en-US/images/icon.png" width="25%" /> <br>
-	YTDLnis
+	<img src=".github/assets/pullr-logo.png" width="25%" /> <br>
+	Pullr
 </h1>
 
-<div align="center">
-	English
-	&nbsp;&nbsp;| &nbsp;&nbsp;
-	<a href="https://github.com/deniscerri/ytdlnis/blob/main/README-sq.md">Shqip</a>
-	&nbsp;&nbsp;| &nbsp;&nbsp;
-	<a href="https://github.com/deniscerri/ytdlnis/blob/main/README-az.md">Azərbaycanca</a>
-	&nbsp;&nbsp;| &nbsp;&nbsp;
-	<a href="https://github.com/deniscerri/ytdlnis/blob/main/README-tr.md">Türkçe</a>
-	&nbsp;&nbsp;| &nbsp;&nbsp;
-	<a href="https://github.com/deniscerri/ytdlnis/blob/main/README-id.md">Indonesia</a>
-	&nbsp;&nbsp;| &nbsp;&nbsp;
-	<a href="https://github.com/deniscerri/ytdlnis/blob/main/README-pt.md">Português</a>
-	&nbsp;&nbsp;| &nbsp;&nbsp;
-	<a href="https://github.com/deniscerri/ytdlnis/blob/main/README-es.md">Español</a>
-	&nbsp;&nbsp;| &nbsp;&nbsp;
-	<a href="https://github.com/deniscerri/ytdlnis/blob/main/README-ja.md">Japanese</a>
-	&nbsp;&nbsp;| &nbsp;&nbsp;
-	<a href="https://github.com/deniscerri/ytdlnis/blob/main/README-zh_CN.md">简体中文</a>
-	&nbsp;&nbsp;| &nbsp;&nbsp;
-	<a href="https://github.com/deniscerri/ytdlnis/blob/main/README-ro.md">Română</a>
-	&nbsp;&nbsp;| &nbsp;&nbsp;
-	<a href="https://github.com/deniscerri/ytdlnis/blob/main/README-ar.md">العربية</a>
-</div>
-
 <h3 align="center">
-	YTDLnis is a free and open source video/audio downloader using yt-dlp for Android 7.0 and above.
+	Pullr is a personal Android video/audio downloader mod using yt-dlp, based on <a href="https://github.com/deniscerri/ytdlnis">YTDLnis</a> by Denis Çerri.
 </h3>
 <h4 align="center">
-	Created by Denis Çerri
+	Maintained by Alix &nbsp;•&nbsp; Original project by Denis Çerri
 </h4>
 
 <div align="center">
 
-[![GitHub Releases](https://custom-icon-badges.herokuapp.com/badge/Download-blue?style=for-the-badge&logo=download&logoColor=white)](https://github.com/deniscerri/ytdlnis/releases/latest)
-[![F-Droid](https://custom-icon-badges.herokuapp.com/badge/FDroid-violet?style=for-the-badge&logo=download&logoColor=white)](https://f-droid.org/en/packages/com.deniscerri.ytdl)
-[![IzzyOnDroid repository](https://custom-icon-badges.herokuapp.com/badge/IzzyOnDroid%20Repo-red?style=for-the-badge&logo=download&logoColor=white)](https://apt.izzysoft.de/packages/com.deniscerri.ytdl)
-[![Uptodown](https://custom-icon-badges.herokuapp.com/badge/UpToDown-green?style=for-the-badge&logo=download&logoColor=white)](https://ytdlnis.en.uptodown.com/android/download)
+[![GitHub Releases](https://custom-icon-badges.herokuapp.com/badge/Download-blue?style=for-the-badge&logo=download&logoColor=white)](https://github.com/ayankandar2-ux/pullr/releases/tag/quick-pick-debug)
 
-![CI](https://github.com/deniscerri/ytdlnis/actions/workflows/android.yml/badge.svg?branch=main&event=pull)
-[![Preview release](https://img.shields.io/github/release/deniscerri/ytdlnis.svg?maxAge=3600&include_prereleases&label=preview)](https://github.com/deniscerri/ytdlnis/releases) 
-[![Downloads](https://img.shields.io/github/downloads/deniscerri/ytdlnis/total?style=flat-square)](https://github.com/deniscerri/ytdlnis/releases) 
-[![Translation status](https://hosted.weblate.org/widgets/ytdlnis/-/svg-badge.svg)](https://hosted.weblate.org/engage/ytdlnis/?utm_source=widget) 
-[![community](https://img.shields.io/badge/Discord-YTDLnis-blueviolet?style=flat-square&logo=discord)](https://discord.gg/WW3KYWxAPm) 
-[![community](https://img.shields.io/badge/Telegram-YTDLnis-blue?style=flat-square&logo=telegram)](https://t.me/ytdlnis)
-[![community](https://img.shields.io/badge/Telegram-Updates-red?style=flat-square&logo=telegram)](https://t.me/ytdlnis_updates)
-[![website](https://img.shields.io/badge/Website-orange?style=flat-square&logo=youtube)](https://ytdlnis.org)
-![GitHub Sponsor](https://img.shields.io/github/sponsors/deniscerri?label=Sponsor&logo=GitHub)
-
-### Only the links above are the only trusted sources of YTDLnis. Everything else is not related to me.
+### This is a personal fork/mod, not affiliated with the original YTDLnis project, its author, or its official community channels.
+### For the original app, see <a href="https://github.com/deniscerri/ytdlnis">deniscerri/ytdlnis</a>.
 
 </div>
 
