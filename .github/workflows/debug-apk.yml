@@ -31,16 +31,19 @@ jobs:
       - name: Build debug APK
         run: ./gradlew assembleGithubDebug --warning-mode all
 
-      - name: Locate APK
-        run: echo "APK_PATH=$(find app/build/outputs/apk/github/debug -type f -name '*.apk' | head -n 1)" >> $GITHUB_ENV
+      - name: Locate APKs
+        run: |
+          mkdir -p /tmp/apks
+          find app/build/outputs/apk/github/debug -type f -name '*.apk' -exec cp {} /tmp/apks/ \;
+          ls -la /tmp/apks
 
-      - name: Upload APK as workflow artifact
+      - name: Upload APKs as workflow artifact
         uses: actions/upload-artifact@v4
         with:
           name: ytdlnis-debug-apk
-          path: ${{ env.APK_PATH }}
+          path: /tmp/apks/*.apk
 
-      - name: Publish APK to debug release tag
+      - name: Publish APKs to debug release tag
         uses: softprops/action-gh-release@v2
         with:
           tag_name: quick-pick-debug
@@ -48,7 +51,9 @@ jobs:
           body: |
             Auto-built debug APK from ${{ github.ref_name }} @ ${{ github.sha }}.
             Not for general distribution - development build only.
+
+            Most phones: download the `universal` or `arm64-v8a` APK.
           prerelease: true
-          files: ${{ env.APK_PATH }}
+          files: /tmp/apks/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
