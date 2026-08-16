@@ -35,20 +35,13 @@ jobs:
 
       - name: Post build log on failure
         if: steps.build.outcome == 'failure'
+        env:
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          python3 -c "
-import json
-with open('build_output.txt') as f:
-    content = f.read()
-tail = content[-55000:]
-with open('comment_body.json', 'w') as out:
-    json.dump({'body': '```\n' + tail + '\n```'}, out)
-"
-          curl -s -X POST \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d @comment_body.json \
-            "https://api.github.com/repos/${{ github.repository }}/commits/${{ github.sha }}/comments"
+          tail -c 55000 build_output.txt > build_output_tail.txt
+          python3 .github/scripts/post_build_log.py
 
       - name: Fail job if build failed
         if: steps.build.outcome == 'failure'
