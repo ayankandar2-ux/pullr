@@ -50,7 +50,10 @@ jobs:
       - name: Locate APKs
         run: |
           mkdir -p /tmp/apks
-          find app/build/outputs/apk/github/debug -type f -name '*.apk' -exec cp {} /tmp/apks/ \;
+          find app/build/outputs/apk -type f -name '*.apk' -exec cp {} /tmp/apks/ \;
+          echo "--- outputs tree ---"
+          find app/build/outputs -maxdepth 4
+          echo "--- collected apks ---"
           ls -la /tmp/apks
 
       - name: Upload APKs as workflow artifact
