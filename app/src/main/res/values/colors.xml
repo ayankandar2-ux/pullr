@@ -5,7 +5,9 @@
     <color name="grey">#323232</color>
     <color name="light_grey">#A6A6A6</color>
 	<color name="icon_bg">#FFFFFF</color>
-	<color name="icon_fg">#db2e2e</color>
+	<color name="icon_fg">#FFFFFF</color>
+	<color name="pullr_gradient_start">#7F5AF0</color>
+	<color name="pullr_gradient_end">#2CB1FF</color>
 
 
     <color name="blue_md_theme_light_primary">#0058CB</color>
