@@ -3,6 +3,17 @@
     <string name="worst_quality">Worst quality</string>
     <string name="best_quality">Best quality</string>
     <string name="search">Search</string>
+    <string name="quick_pick_title">Download</string>
+    <string name="quick_pick_music">Music</string>
+    <string name="quick_pick_video">Video</string>
+    <string name="quick_pick_fast">Fast</string>
+    <string name="quick_pick_classic_mp3">Classic MP3</string>
+    <string name="quick_pick_fast_480p">Fast (480p)</string>
+    <string name="quick_pick_hq_720p">High quality (720p)</string>
+    <string name="quick_pick_more_formats">More formats</string>
+    <string name="quick_pick_all">All</string>
+    <string name="quick_pick_formats_available">%1$d formats available</string>
+    <string name="quick_pick_advanced">Advanced options</string>
     <string name="remove_all">Remove all</string>
     <string name="remove_results">Clear results</string>
     <string name="download_all">Download all</string>

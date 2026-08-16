@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    app:startDestination="@id/downloadBottomSheetDialog">
+    app:startDestination="@id/quickPickBottomSheetDialog">
+    <dialog
+        android:id="@+id/quickPickBottomSheetDialog"
+        android:name="com.deniscerri.ytdl.ui.downloadcard.QuickPickBottomSheetDialog"
+        android:label="QuickPickBottomSheetDialog" >
+        <action
+            android:id="@+id/action_quickPickBottomSheetDialog_to_downloadBottomSheetDialog"
+            app:destination="@id/downloadBottomSheetDialog"
+            app:launchSingleTop="true" />
+    </dialog>
     <dialog
         android:id="@+id/downloadBottomSheetDialog"
         android:name="com.deniscerri.ytdl.ui.downloadcard.DownloadBottomSheetDialog"
