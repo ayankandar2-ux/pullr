@@ -1,0 +1,54 @@
+name: Debug APK Build
+
+on:
+  push:
+    branches:
+      - "feature/**"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  build-debug:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: 'corretto'
+          cache: 'gradle'
+
+      - name: Create blank local.properties
+        run: touch local.properties
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build debug APK
+        run: ./gradlew assembleGithubDebug --warning-mode all
+
+      - name: Locate APK
+        run: echo "APK_PATH=$(find app/build/outputs/apk/github/debug -type f -name '*.apk' | head -n 1)" >> $GITHUB_ENV
+
+      - name: Upload APK as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ytdlnis-debug-apk
+          path: ${{ env.APK_PATH }}
+
+      - name: Publish APK to debug release tag
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: quick-pick-debug
+          name: Quick pick sheet - debug build
+          body: |
+            Auto-built debug APK from ${{ github.ref_name }} @ ${{ github.sha }}.
+            Not for general distribution - development build only.
+          prerelease: true
+          files: ${{ env.APK_PATH }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
