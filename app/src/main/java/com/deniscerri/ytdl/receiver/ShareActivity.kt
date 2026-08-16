@@ -172,39 +172,42 @@ class ShareActivity : BaseActivity() {
             val type = intent.getStringExtra("TYPE")
             val background = intent.getBooleanExtra("BACKGROUND", ai.metaData?.getBoolean("quick_run_background", false) == true)
 
-            lifecycleScope.launch {
-                val result: ResultItem
-                val existingResults = withContext(Dispatchers.IO){
-                    resultViewModel.getAllByURL(inputQuery)
-                }
+            val downloadType = DownloadType.valueOf(type ?: downloadViewModel.getDownloadType(url = inputQuery).toString())
 
-                if (existingResults.isEmpty() || existingResults.size > 1) {
-                    resultViewModel.deleteAll()
-                    result = downloadViewModel.createEmptyResultItem(inputQuery)
-                }else{
-                    result = existingResults.first()
-                }
+            if (sharedPreferences.getBoolean("download_card", true) && !background) {
+                // Show the sheet IMMEDIATELY with a stub result so the user sees it at once.
+                // The sheet's own shimmer/loading state covers the short period until real
+                // data arrives. DB cleanup and result resolution happen in the background.
+                val stubResult = downloadViewModel.createEmptyResultItem(inputQuery)
+                downloadCardViewModel.setResultItem(stubResult)
+                downloadCardViewModel.setDownloadItem(null)
+                val bundle = Bundle()
+                bundle.putSerializable("type", downloadType)
+                navController.setGraph(R.navigation.share_nav_graph, bundle)
 
-                val downloadType = DownloadType.valueOf(type ?: downloadViewModel.getDownloadType(url = result.url).toString())
-                if (sharedPreferences.getBoolean("download_card", true) && !background){
-
-                    downloadCardViewModel.setResultItem(result)
-                    downloadCardViewModel.setDownloadItem(null)
-                    val bundle = Bundle()
-                    bundle.putSerializable("type", downloadType)
-                    navController.setGraph(R.navigation.share_nav_graph, bundle)
-                }else{
-                    Toast.makeText(this@ShareActivity, "${getString(R.string.downloading)} $inputQuery", Toast.LENGTH_SHORT).show()
-
-                    lifecycleScope.launch(Dispatchers.IO){
-                        val downloadItem = downloadViewModel.createDownloadItemFromResult(
-                            result = result,
-                            givenType = downloadType)
-
-                        downloadViewModel.queueDownloads(listOf(downloadItem))
+                // Clean up old results in the background - don't block the sheet
+                lifecycleScope.launch(Dispatchers.IO) {
+                    val existingResults = resultViewModel.getAllByURL(inputQuery)
+                    if (existingResults.isEmpty() || existingResults.size > 1) {
+                        resultViewModel.deleteAll()
+                    } else {
+                        // Update the card with the cached result (has formats already)
+                        val cachedResult = existingResults.first()
+                        withContext(Dispatchers.Main) {
+                            downloadCardViewModel.setResultItem(cachedResult)
+                        }
                     }
-                    this@ShareActivity.finish()
                 }
+            } else {
+                Toast.makeText(this@ShareActivity, "${getString(R.string.downloading)} $inputQuery", Toast.LENGTH_SHORT).show()
+                lifecycleScope.launch(Dispatchers.IO) {
+                    val downloadItem = downloadViewModel.createDownloadItemFromResult(
+                        result = downloadViewModel.createEmptyResultItem(inputQuery),
+                        givenType = downloadType
+                    )
+                    downloadViewModel.queueDownloads(listOf(downloadItem))
+                }
+                this@ShareActivity.finish()
             }
         }
     }

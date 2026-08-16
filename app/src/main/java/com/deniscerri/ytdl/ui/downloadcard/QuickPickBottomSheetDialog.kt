@@ -168,6 +168,20 @@ class QuickPickBottomSheetDialog : BottomSheetDialogFragment() {
             content.visibility = View.VISIBLE
         }
 
+        // If ShareActivity posts a cached result (with formats already) after the sheet
+        // opened with a stub, pick it up and skip the yt-dlp fetch entirely.
+        viewLifecycleOwner.lifecycleScope.launch {
+            downloadCardViewModel.resultItemFlow.collectLatest { updatedResult ->
+                if (updatedResult == null || updatedResult.url != result.url) return@collectLatest
+                if (updatedResult.formats.isNotEmpty() && result.formats.isEmpty()) {
+                    result = updatedResult
+                    withContext(Dispatchers.Main) {
+                        showFormats(result.formats)
+                    }
+                }
+            }
+        }
+
         viewLifecycleOwner.lifecycleScope.launch {
             resultViewModel.updateFormatsResultData.collectLatest { formats ->
                 if (formats == null) return@collectLatest

@@ -28,8 +28,12 @@ import kotlinx.coroutines.launch
 import java.io.File
 
 class DownloadCardViewModel(application: Application) : AndroidViewModel(application) {
-    var resultItem: ResultItem? = null
-        private set
+    private val _resultItem = MutableStateFlow<ResultItem?>(null)
+    val resultItemFlow = _resultItem.asSharedFlow()
+
+    var resultItem: ResultItem?
+        get() = _resultItem.value
+        private set(value) { _resultItem.value = value }
 
     var downloadItem: DownloadItem? = null
         private set
@@ -39,6 +43,6 @@ class DownloadCardViewModel(application: Application) : AndroidViewModel(applica
     }
 
     fun setResultItem(item: ResultItem?) {
-        resultItem = item
+        _resultItem.value = item
     }
 }
