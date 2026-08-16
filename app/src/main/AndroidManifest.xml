@@ -69,6 +69,8 @@
             android:exported="true"
             android:taskAffinity=""
             android:launchMode="singleInstance"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true"
             android:theme="@style/Theme.BottomSheet">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />

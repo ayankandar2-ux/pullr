@@ -100,19 +100,11 @@ class ShareActivity : BaseActivity() {
             setContentView(R.layout.activity_share)
 
         }else{
-            window.run {
-                setBackgroundDrawable(ColorDrawable(0))
-                setLayout(
-                    WindowManager.LayoutParams.MATCH_PARENT,
-                    WindowManager.LayoutParams.MATCH_PARENT
-                )
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY)
-                } else {
-                    setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
-                }
-            }
-
+            // No overlay permission - use a normal transparent activity window.
+            // Do NOT call setType(TYPE_APPLICATION_OVERLAY) without the permission;
+            // on many OEM ROMs (Vivo/FuntouchOS, MIUI, etc.) this causes the system
+            // to queue the window for minutes before showing it.
+            window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             setContentView(R.layout.activity_share)
         }
 
