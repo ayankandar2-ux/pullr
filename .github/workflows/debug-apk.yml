@@ -79,33 +79,28 @@ jobs:
           name: ytdlnis-debug-apk
           path: /tmp/apks/*.apk
 
-      - name: Delete old release assets
-        run: |
-          RELEASE_ID=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/releases/tags/quick-pick-debug" \
-            | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('id',''))" 2>/dev/null || true)
-          if [ -n "$RELEASE_ID" ]; then
-            curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              "https://api.github.com/repos/${{ github.repository }}/releases/$RELEASE_ID/assets" \
-              | python3 -c "import json,sys; [print(a['id']) for a in json.load(sys.stdin)]" \
-              | while read asset_id; do
-                  curl -s -X DELETE -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                    "https://api.github.com/repos/${{ github.repository }}/releases/assets/$asset_id"
-                done
-          fi
-
       - name: Publish APKs to debug release tag
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: quick-pick-debug
-          name: Pullr — debug build
-          body: |
-            Auto-built debug APK from ${{ github.ref_name }} @ ${{ github.sha }}.
-            Not for general distribution - development build only.
-
-            Most phones: download the `arm64-v8a` APK.
-          prerelease: true
-          files: /tmp/apks/*.apk
-          fail_on_unmatched_files: true
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Create or update the release
+          gh release view quick-pick-debug --repo ${{ github.repository }} > /dev/null 2>&1 \
+            && gh release edit quick-pick-debug \
+                --repo ${{ github.repository }} \
+                --title "Pullr — debug build" \
+                --notes "Auto-built from ${{ github.ref_name }} @ ${{ github.sha }}.
+
+Most phones: download the \`arm64-v8a\` APK." \
+                --prerelease \
+            || gh release create quick-pick-debug \
+                --repo ${{ github.repository }} \
+                --title "Pullr — debug build" \
+                --notes "Auto-built from ${{ github.ref_name }} @ ${{ github.sha }}.
+
+Most phones: download the \`arm64-v8a\` APK." \
+                --prerelease
+
+          # Upload APKs, overwriting any existing assets with the same name
+          gh release upload quick-pick-debug /tmp/apks/*.apk \
+            --repo ${{ github.repository }} \
+            --clobber
