@@ -48,13 +48,28 @@ jobs:
         run: exit 1
 
       - name: Locate APKs
+        id: locate
         run: |
           mkdir -p /tmp/apks
-          find app/build/outputs/apk -type f -name '*.apk' -exec cp {} /tmp/apks/ \;
-          echo "--- outputs tree ---"
-          find app/build/outputs -maxdepth 4
+          {
+            echo "--- outputs tree ---"
+            find app/build/outputs -maxdepth 5 2>&1 || true
+            echo "--- searching for apks ---"
+            find app/build/outputs -type f -name '*.apk' 2>&1 | tee /tmp/apk_list.txt || true
+          } > /tmp/locate_debug.txt
+          while IFS= read -r f; do cp "$f" /tmp/apks/; done < /tmp/apk_list.txt
           echo "--- collected apks ---"
           ls -la /tmp/apks
+
+      - name: Post outputs diagnostics
+        if: always()
+        env:
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cp /tmp/locate_debug.txt build_output_tail.txt 2>/dev/null || echo "no locate debug" > build_output_tail.txt
+          python3 .github/scripts/post_build_log.py
 
       - name: Upload APKs as workflow artifact
         uses: actions/upload-artifact@v4
