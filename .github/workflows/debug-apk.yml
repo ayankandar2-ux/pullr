@@ -83,21 +83,18 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Create or update the release
+          printf 'Auto-built from %s @ %s.\n\nMost phones: download the `arm64-v8a` APK.\n' "${{ github.ref_name }}" "${{ github.sha }}" > /tmp/release_notes.txt
+
           gh release view quick-pick-debug --repo ${{ github.repository }} > /dev/null 2>&1 \
             && gh release edit quick-pick-debug \
                 --repo ${{ github.repository }} \
                 --title "Pullr — debug build" \
-                --notes "Auto-built from ${{ github.ref_name }} @ ${{ github.sha }}.
-
-Most phones: download the \`arm64-v8a\` APK." \
+                --notes-file /tmp/release_notes.txt \
                 --prerelease \
             || gh release create quick-pick-debug \
                 --repo ${{ github.repository }} \
                 --title "Pullr — debug build" \
-                --notes "Auto-built from ${{ github.ref_name }} @ ${{ github.sha }}.
-
-Most phones: download the \`arm64-v8a\` APK." \
+                --notes-file /tmp/release_notes.txt \
                 --prerelease
 
           # Upload APKs, overwriting any existing assets with the same name
