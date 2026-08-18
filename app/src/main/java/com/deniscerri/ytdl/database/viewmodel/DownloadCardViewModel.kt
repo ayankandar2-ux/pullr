@@ -31,9 +31,8 @@ class DownloadCardViewModel(application: Application) : AndroidViewModel(applica
     private val _resultItem = MutableStateFlow<ResultItem?>(null)
     val resultItemFlow = _resultItem.asSharedFlow()
 
-    var resultItem: ResultItem?
+    val resultItem: ResultItem?
         get() = _resultItem.value
-        private set(value) { _resultItem.value = value }
 
     var downloadItem: DownloadItem? = null
         private set
