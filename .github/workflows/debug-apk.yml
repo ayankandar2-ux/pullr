@@ -80,6 +80,8 @@ jobs:
           path: /tmp/apks/*.apk
 
       - name: Publish APKs to debug release tag
+        id: publish
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -100,4 +102,18 @@ jobs:
           # Upload APKs, overwriting any existing assets with the same name
           gh release upload quick-pick-debug /tmp/apks/*.apk \
             --repo ${{ github.repository }} \
-            --clobber
+            --clobber 2>&1 | tee /tmp/publish_output.txt
+
+      - name: Post publish log on failure
+        if: steps.publish.outcome == 'failure'
+        env:
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cp /tmp/publish_output.txt build_output_tail.txt 2>/dev/null || echo "no publish output captured" > build_output_tail.txt
+          python3 .github/scripts/post_build_log.py
+
+      - name: Fail job if publish failed
+        if: steps.publish.outcome == 'failure'
+        run: exit 1
