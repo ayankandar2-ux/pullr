@@ -449,9 +449,19 @@ class NotificationUtil(var context: Context) {
             progress = progressRaw
         }
 
+        val parsedProgress = YtdlpProgressParser.parse(desc)
+        val progressSummary = YtdlpProgressParser.buildSummary(parsedProgress)
+
+        // e.g. "42% • 34.10MiB • 1.2MiB/s • ETA 00:12"
+        val textWithPercent = if (progressSummary.isNotBlank()) "$progress% • $progressSummary" else "$progress%"
+
         var contentText = ""
         if (queue > 1) contentText += """${queue - 1} ${resources.getString(R.string.items_left)}""" + "\n"
-        contentText += desc.replace("\\[.*?\\] ".toRegex(), "")
+        contentText += textWithPercent.ifBlank {
+            desc.replace("\\[.*?\\] ".toRegex(), "")
+        }
+
+        val shortTitle = title?.let { if (it.length > 60) it.take(57) + "…" else it } ?: resources.getString(R.string.downloading)
 
         val pauseIntent = Intent(context, PauseDownloadNotificationReceiver::class.java)
         pauseIntent.putExtra("itemID", id)
@@ -497,8 +507,8 @@ class NotificationUtil(var context: Context) {
 
                 val builder = Notification.Builder(context, channel)
                     .setSmallIcon(R.drawable.ic_launcher_foreground_large)
-                    .setContentTitle("$progress%")
-                    .setContentText(title)
+                    .setContentTitle(shortTitle)
+                    .setContentText("$progress%")
                     .setSubText(contentText)
                     .setStyle(progressStyle)
                     .setOngoing(true)
@@ -516,7 +526,8 @@ class NotificationUtil(var context: Context) {
             } else {
                 val notificationBuilder = getBuilder(channel)
                 notificationBuilder.setProgress(100, progress, (progress == 0 || progress == 100))
-                    .setContentTitle(title)
+                    .setContentTitle(shortTitle)
+                    .setContentText(textWithPercent)
                     .setStyle(NotificationCompat.BigTextStyle().bigText(contentText))
                     .setGroup(DOWNLOAD_RUNNING_NOTIFICATION_ID.toString())
                     .clearActions()

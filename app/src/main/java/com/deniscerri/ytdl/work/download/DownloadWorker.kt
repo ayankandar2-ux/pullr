@@ -187,7 +187,7 @@ class DownloadWorker(
             eligibleDownloads.forEach{downloadItem ->
                 priorityItemIDs.remove(downloadItem.id)
 
-                val notification = notificationUtil.createDownloadServiceNotification(openDownloadQueue, downloadItem.title.ifEmpty { downloadItem.url })
+                val notification = notificationUtil.createDownloadServiceNotification(openDownloadQueue, downloadItem.title.ifEmpty { context.resources.getString(R.string.downloading) })
                 notificationUtil.notify(downloadItem.id.toInt(), notification)
 
                 workerScope.launch {
@@ -295,7 +295,7 @@ class DownloadWorker(
                                         downloadItem.logID
                                     )
                                 )
-                                val title: String = downloadItem.title.ifEmpty { downloadItem.url }
+                                val title: String = downloadItem.title.ifEmpty { context.resources.getString(R.string.downloading) }
                                 notificationUtil.updateDownloadNotification(
                                     downloadItem.id.toInt(),
                                     line, progress.toInt(), 0, title,
@@ -530,7 +530,7 @@ class DownloadWorker(
 
                             notificationUtil.createDownloadErrored(
                                 downloadItem.id,
-                                downloadItem.title.ifEmpty { downloadItem.url },
+                                downloadItem.title.ifEmpty { context.resources.getString(R.string.downloading) },
                                 it.message,
                                 downloadItem.logID,
                                 resources
