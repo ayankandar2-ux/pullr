@@ -73,7 +73,7 @@ class YoutubePlayerClientFragment : Fragment(), YoutubePlayerClientAdapter.OnIte
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = listAdapter
         itemTouchHelper.attachToRecyclerView(recyclerView)
-        currentListRaw = preferences.getString("youtube_player_clients", "[]")!!.ifEmpty { "[]" }
+        currentListRaw = preferences.getString("youtube_player_clients", com.deniscerri.ytdl.util.extractors.ytdlp.YTDLPUtil.DEFAULT_PLAYER_CLIENTS)!!.ifEmpty { com.deniscerri.ytdl.util.extractors.ytdlp.YTDLPUtil.DEFAULT_PLAYER_CLIENTS }
         currentList = kotlin.runCatching {
             Gson().fromJson(currentListRaw, Array<YoutubePlayerClientItem>::class.java).toMutableList()
         }.getOrElse { mutableListOf() }

@@ -61,15 +61,6 @@
         <SwitchPreferenceCompat
             android:widgetLayout="@layout/preferece_material_switch"
             app:defaultValue="false"
-            android:icon="@drawable/ic_ipv4"
-            android:key="force_ipv4"
-            app:summary="@string/force_ipv4_desc"
-            app:title="@string/force_ipv4" />
-
-
-        <SwitchPreferenceCompat
-            android:widgetLayout="@layout/preferece_material_switch"
-            app:defaultValue="false"
             android:icon="@drawable/baseline_cookie_24"
             android:key="use_cookies"
             app:title="@string/use_cookies" />
@@ -149,14 +140,6 @@
             app:summary="@string/aria2_summary"
             android:disableDependentsState="true"
             app:title="aria2c" />
-
-        <SwitchPreferenceCompat
-            android:widgetLayout="@layout/preferece_material_switch"
-            app:defaultValue="false"
-            android:icon="@drawable/ic_baseline_file_open_24"
-            android:key="log_downloads"
-            app:summary="@string/log_downloads_summary"
-            app:title="@string/log_downloads" />
 
         <ListPreference
             android:defaultValue=""

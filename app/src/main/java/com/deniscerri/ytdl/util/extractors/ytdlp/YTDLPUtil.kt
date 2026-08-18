@@ -53,6 +53,12 @@ class YTDLPUtil(private val context: Context, private val commandTemplateDao: Co
     private val formatUtil = FormatUtil(context)
     private val handler = Handler(Looper.getMainLooper())
 
+    companion object {
+        // Defaults to the "android" client only: it's one of the fastest for plain video/audio
+        // extraction since it skips the web signature-decryption step yt-dlp otherwise performs.
+        const val DEFAULT_PLAYER_CLIENTS = """[{"playerClient":"android","poTokens":[],"enabled":true,"useOnlyPoToken":false,"urlRegex":[]}]"""
+    }
+
     private fun YTDLRequest.applyDefaultOptionsForFetchingData(url: String?) {
         addOption("--skip-download")
         addOption("--quiet")
@@ -490,7 +496,7 @@ class YTDLPUtil(private val context: Context, private val commandTemplateDao: Co
         if (!request.hasOption("--no-check-certificates")) request.addOption("--no-check-certificates")
 
         val canUseWriteInfoJson =
-            !sharedPreferences.getBoolean("disable_write_info_json", false) &&
+            !sharedPreferences.getBoolean("disable_write_info_json", true) &&
                     !request.toString().contains("--download-sections")
         if (canUseWriteInfoJson) {
             val infoJsonFile = getInfoJsonFile(url)
@@ -735,7 +741,7 @@ class YTDLPUtil(private val context: Context, private val commandTemplateDao: Co
         val playerClients = mutableSetOf<String>()
         val poTokens = mutableListOf<String>()
 
-        val configuredPlayerClientsRaw = sharedPreferences.getString("youtube_player_clients", "[]")!!.ifEmpty { "[]" }
+        val configuredPlayerClientsRaw = sharedPreferences.getString("youtube_player_clients", DEFAULT_PLAYER_CLIENTS)!!.ifEmpty { DEFAULT_PLAYER_CLIENTS }
         kotlin.runCatching {
             val configuredPlayerClients = Gson().fromJson(configuredPlayerClientsRaw, Array<YoutubePlayerClientItem>::class.java).toMutableList()
 
@@ -1065,7 +1071,7 @@ class YTDLPUtil(private val context: Context, private val commandTemplateDao: Co
             * Cant use info json when using download sections
             * */
             val canUseWriteInfoJson =
-                !sharedPreferences.getBoolean("disable_write_info_json", false) &&
+                !sharedPreferences.getBoolean("disable_write_info_json", true) &&
                 !request.toString().contains("--download-sections")
 
             if (canUseWriteInfoJson && downloadItem.playlistURL.isNullOrBlank()) {

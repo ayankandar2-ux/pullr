@@ -452,16 +452,17 @@ class NotificationUtil(var context: Context) {
         val parsedProgress = YtdlpProgressParser.parse(desc)
         val progressSummary = YtdlpProgressParser.buildSummary(parsedProgress)
 
-        // e.g. "42% • 34.10MiB • 1.2MiB/s • ETA 00:12"
-        val textWithPercent = if (progressSummary.isNotBlank()) "$progress% • $progressSummary" else "$progress%"
+        val shortTitle = title?.let { if (it.length > 60) it.take(57) + "…" else it } ?: resources.getString(R.string.downloading)
 
-        var contentText = ""
-        if (queue > 1) contentText += """${queue - 1} ${resources.getString(R.string.items_left)}""" + "\n"
-        contentText += textWithPercent.ifBlank {
-            desc.replace("\\[.*?\\] ".toRegex(), "")
+        // Big title row, e.g. "Downloading 1 task..." / "Downloading (3 item(s) left)..."
+        val taskCountLabel = if (queue > 1) {
+            "${resources.getString(R.string.downloading)} ($queue ${resources.getString(R.string.items_left)})..."
+        } else {
+            "${resources.getString(R.string.downloading)}..."
         }
 
-        val shortTitle = title?.let { if (it.length > 60) it.take(57) + "…" else it } ?: resources.getString(R.string.downloading)
+        // Second row: filename + size/speed/eta, e.g. "My video (34.10MiB • 1.2MiB/s • ETA 00:12)"
+        val detailLine = if (progressSummary.isNotBlank()) "$shortTitle  ($progressSummary)" else shortTitle
 
         val pauseIntent = Intent(context, PauseDownloadNotificationReceiver::class.java)
         pauseIntent.putExtra("itemID", id)
@@ -507,9 +508,9 @@ class NotificationUtil(var context: Context) {
 
                 val builder = Notification.Builder(context, channel)
                     .setSmallIcon(R.drawable.ic_launcher_foreground_large)
-                    .setContentTitle(shortTitle)
-                    .setContentText("$progress%")
-                    .setSubText(contentText)
+                    .setContentTitle(taskCountLabel)
+                    .setContentText(detailLine)
+                    .setSubText("$progress%")
                     .setStyle(progressStyle)
                     .setOngoing(true)
                     .setOnlyAlertOnce(true)
@@ -526,9 +527,10 @@ class NotificationUtil(var context: Context) {
             } else {
                 val notificationBuilder = getBuilder(channel)
                 notificationBuilder.setProgress(100, progress, (progress == 0 || progress == 100))
-                    .setContentTitle(shortTitle)
-                    .setContentText(textWithPercent)
-                    .setStyle(NotificationCompat.BigTextStyle().bigText(contentText))
+                    .setContentTitle(taskCountLabel)
+                    .setContentText(detailLine)
+                    .setContentInfo("$progress%")
+                    .setStyle(NotificationCompat.BigTextStyle().bigText(detailLine))
                     .setGroup(DOWNLOAD_RUNNING_NOTIFICATION_ID.toString())
                     .clearActions()
                     .addAction(0, resources.getString(R.string.pause), pauseNotificationPendingIntent)
