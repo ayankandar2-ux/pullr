@@ -31,7 +31,7 @@ jobs:
       - name: Build debug APK
         id: build
         continue-on-error: true
-        run: ./gradlew assembleGithubDebug --warning-mode all --stacktrace 2>&1 | tee build_output.txt
+        run: ./gradlew assembleGithubDebug --stacktrace > build_output.txt 2>&1
 
       - name: Post build log (always)
         if: always()
@@ -40,9 +40,15 @@ jobs:
           SHA: ${{ github.sha }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "build step outcome: ${{ steps.build.outcome }}" > build_output_tail.txt
-          echo "" >> build_output_tail.txt
-          tail -c 50000 build_output.txt >> build_output_tail.txt 2>/dev/null || echo "no build_output.txt" >> build_output_tail.txt
+          {
+            echo "build step outcome: ${{ steps.build.outcome }}"
+            echo ""
+            echo "--- kotlin/compiler errors (grep) ---"
+            grep -nE "^e: |error:|FAILURE:|What went wrong|Caused by" build_output.txt | head -80
+            echo ""
+            echo "--- tail ---"
+            tail -c 30000 build_output.txt
+          } > build_output_tail.txt 2>/dev/null || echo "no build_output.txt" > build_output_tail.txt
           python3 .github/scripts/post_build_log.py
 
       - name: Fail job if build failed
