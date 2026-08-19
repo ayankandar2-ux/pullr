@@ -26,10 +26,10 @@ class App : Application() {
         instance = this
 
         val sharedPreferences =  PreferenceManager.getDefaultSharedPreferences(this@App)
-        setDefaultValues()
         applicationScope = CoroutineScope(SupervisorJob())
         applicationScope.launch((Dispatchers.IO)) {
             try {
+                setDefaultValues()
                 createNotificationChannels()
                 initLibraries()
 
