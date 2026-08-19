@@ -2,6 +2,14 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <PreferenceCategory android:title="@string/terminal">
+        <Preference
+            android:icon="@drawable/ic_terminal"
+            android:key="open_terminal"
+            android:title="@string/terminal"
+            android:summary="@string/terminal" />
+    </PreferenceCategory>
+
     <PreferenceCategory android:title="YouTube">
         <Preference
             android:defaultValue=""

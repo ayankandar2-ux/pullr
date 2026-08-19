@@ -18,11 +18,22 @@
 
             <ImageView
                 android:id="@+id/app_icon"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="16dp"
+                android:src="@drawable/ic_app_icon_img"
+                android:scaleType="fitCenter" />
+
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:background="@drawable/ic_app_icon"
-                android:scaleType="center" />
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="8dp"
+                android:text="@string/app_name"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/terminal"
@@ -32,6 +43,7 @@
                 android:textStyle="bold"
                 android:clickable="true"
                 android:focusable="true"
+                android:visibility="gone"
                 android:background="?android:attr/selectableItemBackground"
                 android:paddingHorizontal="15dp"
                 android:paddingVertical="15dp"

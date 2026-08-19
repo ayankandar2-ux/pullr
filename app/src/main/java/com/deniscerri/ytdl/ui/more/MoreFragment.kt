@@ -67,12 +67,8 @@ class MoreFragment : Fragment() {
         terminateApp = view.findViewById(R.id.terminate)
         settings = view.findViewById(R.id.settings)
 
-        val appIcon = view.findViewById<ImageView>(R.id.app_icon)
-        if (mainSharedPreferences.getString("theme_accent", "blue") == "Default" && Build.VERSION.SDK_INT >= 32) {
-            appIcon.backgroundTintList = MaterialColors.getColorStateList(requireContext(), R.attr.colorPrimary, ContextCompat.getColorStateList(requireContext(), R.color.icon_fg)!!)
-        } else {
-            appIcon.backgroundTintList = null
-        }
+        // New branded icon - no tinting needed
+        view.findViewById<ImageView>(R.id.app_icon).backgroundTintList = null
 
         var showingTerminal = false
         var showingDownloads = false
@@ -84,7 +80,7 @@ class MoreFragment : Fragment() {
             showingDownloadQueue = any { n -> n.itemId == R.id.downloadQueueMainFragment && n.isVisible }
         }
 
-        terminal.isVisible = !showingTerminal
+        terminal.isVisible = false  // Terminal is in Advanced Settings, not here
         downloads.isVisible = !showingDownloads
         downloadQueue.isVisible = !showingDownloadQueue
 

@@ -107,7 +107,10 @@ class SettingsActivity : BaseActivity(), SettingHost {
                 if (destination.id == R.id.mainSettingsFragment) {
                     if (binding.collapsingToolbar.title != getString(R.string.settings)) {
                         changeTopAppbarTitle(getString(R.string.settings), false)
-                        settingViewModel.indexSearchSettings()
+                        // Run indexing off the main thread so navigation is instant
+                        lifecycleScope.launch(Dispatchers.IO) {
+                            settingViewModel.indexSearchSettings()
+                        }
                     }
                 }
             }

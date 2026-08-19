@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">Pullr</string>
     <string name="worst_quality">Worst quality</string>
     <string name="best_quality">Best quality</string>
     <string name="search">Search</string>

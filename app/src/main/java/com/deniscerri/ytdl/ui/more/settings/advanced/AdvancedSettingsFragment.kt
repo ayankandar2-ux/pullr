@@ -2,6 +2,7 @@ package com.deniscerri.ytdl.ui.more.settings.advanced
 
 import android.annotation.SuppressLint
 import android.content.DialogInterface
+import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
 import android.widget.LinearLayout
@@ -16,6 +17,7 @@ import com.deniscerri.ytdl.R
 import com.deniscerri.ytdl.ui.adapter.SortableTextItemAdapter
 import com.deniscerri.ytdl.ui.more.settings.BaseSettingsFragment
 import com.deniscerri.ytdl.ui.more.settings.SettingsRegistry
+import com.deniscerri.ytdl.ui.more.terminal.TerminalActivity
 import com.deniscerri.ytdl.util.UiUtil
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
@@ -30,6 +32,11 @@ class AdvancedSettingsFragment : BaseSettingsFragment() {
 
         val prefs = PreferenceManager.getDefaultSharedPreferences(requireActivity())
         val editor = prefs.edit()
+
+        findPreference<Preference>("open_terminal")?.setOnPreferenceClickListener {
+            startActivity(Intent(requireContext(), TerminalActivity::class.java))
+            true
+        }
 
         findPreference<Preference>("reset_preferences")?.setOnPreferenceClickListener {
             UiUtil.showGenericConfirmDialog(requireContext(), getString(R.string.reset), getString(R.string.reset_preferences_in_screen)) {
