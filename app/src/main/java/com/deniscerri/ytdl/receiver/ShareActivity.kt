@@ -7,15 +7,10 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Color
-import android.graphics.PixelFormat
 import android.graphics.drawable.ColorDrawable
-import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.WindowManager
 import android.widget.Toast
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -59,66 +54,39 @@ class ShareActivity : BaseActivity() {
     private lateinit var navController: NavController
     private var quickDownload by Delegates.notNull<Boolean>()
 
-    private lateinit var wm: WindowManager
-    private lateinit var myView: View
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+        // Apply theme first (reads SharedPreferences only - fast)
         ThemeUtil.updateTheme(this)
+        super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         ViewCompat.setOnApplyWindowInsetsListener(window.decorView) { v, insets ->
             v.setPadding(0, 0, 0, 0)
             insets
         }
 
-        if (Settings.canDrawOverlays(this)){
-            val params = WindowManager.LayoutParams(
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-                } else {
-                    WindowManager.LayoutParams.TYPE_SYSTEM_ALERT
-                },
-                PixelFormat.TRANSLUCENT
-            )
-            wm = getSystemService(WINDOW_SERVICE) as WindowManager
+        // Show the window IMMEDIATELY - transparent background, no overlay tricks
+        window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        setContentView(R.layout.activity_share)
 
-            val inflater = getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater
-            myView = inflater.inflate(R.layout.activity_share, null)
-            window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            wm.addView(myView, params)
-
-            // window.addFlags(
-            //     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-            //             or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
-            //             or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
-            // )
-            //
-            // val params = window.attributes
-            // params.alpha = 0f
-            // window.attributes = params
-            setContentView(R.layout.activity_share)
-
-        }else{
-            // No overlay permission - use a normal transparent activity window.
-            // Do NOT call setType(TYPE_APPLICATION_OVERLAY) without the permission;
-            // on many OEM ROMs (Vivo/FuntouchOS, MIUI, etc.) this causes the system
-            // to queue the window for minutes before showing it.
-            window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            setContentView(R.layout.activity_share)
-        }
-
+        // Wire up nav + show the sheet instantly (stub result, no DB wait)
         context = baseContext
-        resultViewModel = ViewModelProvider(this)[ResultViewModel::class.java]
-        historyViewModel = ViewModelProvider(this)[HistoryViewModel::class.java]
-        downloadViewModel = ViewModelProvider(this)[DownloadViewModel::class.java]
-        cookieViewModel = ViewModelProvider(this)[CookieViewModel::class.java]
-        downloadCardViewModel = ViewModelProvider(this)[DownloadCardViewModel::class.java]
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
 
-        cookieViewModel.updateCookiesFile()
+        // Only init the card VM synchronously - it's tiny, no DB ops
+        downloadCardViewModel = ViewModelProvider(this)[DownloadCardViewModel::class.java]
+
         val intent = intent
         handleIntents(intent)
+
+        // Init the rest of the VMs in the background AFTER the sheet is visible
+        lifecycleScope.launch(Dispatchers.IO) {
+            resultViewModel = ViewModelProvider(this@ShareActivity)[ResultViewModel::class.java]
+            historyViewModel = ViewModelProvider(this@ShareActivity)[HistoryViewModel::class.java]
+            downloadViewModel = ViewModelProvider(this@ShareActivity)[DownloadViewModel::class.java]
+            cookieViewModel = ViewModelProvider(this@ShareActivity)[CookieViewModel::class.java]
+            cookieViewModel.updateCookiesFile()
+        }
     }
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
@@ -160,71 +128,92 @@ class ShareActivity : BaseActivity() {
 
             runCatching { supportFragmentManager.popBackStack() }
 
-            quickDownload = intent.getBooleanExtra("quick_download", sharedPreferences.getBoolean("quick_download", false) || sharedPreferences.getString("preferred_download_type", "video") == "command")
+            quickDownload = intent.getBooleanExtra("quick_download",
+                sharedPreferences.getBoolean("quick_download", false) ||
+                sharedPreferences.getString("preferred_download_type", "video") == "command")
+
             val data = when(action){
                 Intent.ACTION_SEND -> intent.getStringExtra(Intent.EXTRA_TEXT)!!
                 else -> intent.dataString!!
             }
 
             val inputQuery = data.extractURL()
-            val ai = packageManager.getActivityInfo(componentName, PackageManager.GET_META_DATA)
-
             val type = intent.getStringExtra("TYPE")
-            val background = intent.getBooleanExtra("BACKGROUND", ai.metaData?.getBoolean("quick_run_background", false) == true)
-
-            val downloadType = DownloadType.valueOf(type ?: downloadViewModel.getDownloadType(url = inputQuery).toString())
+            val ai = packageManager.getActivityInfo(componentName, PackageManager.GET_META_DATA)
+            val background = intent.getBooleanExtra("BACKGROUND",
+                ai.metaData?.getBoolean("quick_run_background", false) == true)
 
             if (sharedPreferences.getBoolean("download_card", true) && !background) {
-                // Show the sheet IMMEDIATELY with a stub result so the user sees it at once.
-                // The sheet's own shimmer/loading state covers the short period until real
-                // data arrives. DB cleanup and result resolution happen in the background.
-                val stubResult = downloadViewModel.createEmptyResultItem(inputQuery)
+                // ── STEP 1: show the sheet IMMEDIATELY with a zero-cost stub ──
+                // downloadCardViewModel is the only VM initialized at this point.
+                // Everything else happens after the sheet is on screen.
+                val stubResult = ResultItem(
+                    0, inputQuery, "", "", "", "", "", "",
+                    arrayListOf(), "", arrayListOf(), "", null,
+                    System.currentTimeMillis()
+                )
+                val downloadType = DownloadType.valueOf(
+                    type ?: sharedPreferences.getString("preferred_download_type", "video")!!
+                        .let { if (it == "auto") "video" else it }
+                )
                 downloadCardViewModel.setResultItem(stubResult)
                 downloadCardViewModel.setDownloadItem(null)
                 val bundle = Bundle()
                 bundle.putSerializable("type", downloadType)
                 navController.setGraph(R.navigation.share_nav_graph, bundle)
 
-                // Clean up old results in the background - don't block the sheet
+                // ── STEP 2: do DB/VM work in background after sheet is visible ──
                 lifecycleScope.launch(Dispatchers.IO) {
+                    // VMs may not be ready yet - wait briefly if needed
+                    var waited = 0
+                    while (!::downloadViewModel.isInitialized && waited < 2000) {
+                        kotlinx.coroutines.delay(50)
+                        waited += 50
+                    }
+                    if (!::downloadViewModel.isInitialized) return@launch
+
                     val existingResults = resultViewModel.getAllByURL(inputQuery)
-                    if (existingResults.isEmpty() || existingResults.size > 1) {
-                        resultViewModel.deleteAll()
-                    } else {
-                        // Update the card with the cached result (has formats already)
-                        val cachedResult = existingResults.first()
+                    if (existingResults.size == 1) {
+                        // Cached result with formats — push it so sheet skips yt-dlp fetch
+                        val cached = existingResults.first()
                         withContext(Dispatchers.Main) {
-                            downloadCardViewModel.setResultItem(cachedResult)
+                            downloadCardViewModel.setResultItem(cached)
                         }
+                    } else {
+                        resultViewModel.deleteAll()
                     }
                 }
             } else {
-                Toast.makeText(this@ShareActivity, "${getString(R.string.downloading)} $inputQuery", Toast.LENGTH_SHORT).show()
+                // Background/quick download — needs VMs, wait for them
                 lifecycleScope.launch(Dispatchers.IO) {
+                    var waited = 0
+                    while (!::downloadViewModel.isInitialized && waited < 3000) {
+                        kotlinx.coroutines.delay(50)
+                        waited += 50
+                    }
+                    if (!::downloadViewModel.isInitialized) return@launch
+
+                    val downloadType = DownloadType.valueOf(
+                        type ?: downloadViewModel.getDownloadType(url = inputQuery).toString()
+                    )
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(this@ShareActivity,
+                            "${getString(R.string.downloading)} $inputQuery",
+                            Toast.LENGTH_SHORT).show()
+                    }
                     val downloadItem = downloadViewModel.createDownloadItemFromResult(
                         result = downloadViewModel.createEmptyResultItem(inputQuery),
                         givenType = downloadType
                     )
                     downloadViewModel.queueDownloads(listOf(downloadItem))
+                    withContext(Dispatchers.Main) { this@ShareActivity.finish() }
                 }
-                this@ShareActivity.finish()
             }
         }
     }
     override fun onConfigurationChanged(newConfig: Configuration) {
         startActivity(Intent(this, MainActivity::class.java))
         super.onConfigurationChanged(newConfig)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        if (::wm.isInitialized && ::myView.isInitialized) {
-            try {
-                wm.removeView(myView)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
     }
 
     override fun onResume() {
