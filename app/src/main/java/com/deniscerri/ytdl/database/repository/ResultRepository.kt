@@ -313,8 +313,7 @@ class ResultRepository(private val resultDao: ResultDao, commandTemplateDao: Com
     }
 
     fun getFormats(url: String, source : String? = null) : List<Format> {
-        val formatSource = source ?: sharedPreferences.getString("formats_source", "yt-dlp")
-        val res = if (url.isYoutubeURL()) {
+        val formatSource = source ?: sharedPreferences.getString("formats_source", "newpipe")
             when(formatSource) {
                 "newpipe" -> {
                     val tmpRes = NewPipeUtil(context).getFormats(url)
@@ -338,7 +337,7 @@ class ResultRepository(private val resultDao: ResultDao, commandTemplateDao: Com
     }
 
     suspend fun getFormatsMultiple(urls: List<String>, source: String? = null, progress: (progress: ResultViewModel.MultipleFormatProgress) -> Unit) : MutableList<MutableList<Format>> {
-        val formatSource = source ?: sharedPreferences.getString("formats_source", "yt-dlp")
+        val formatSource = source ?: sharedPreferences.getString("formats_source", "newpipe")
         val allYoutubeLinks = urls.all { it.isYoutubeURL() }
 
         val res = when(formatSource) {

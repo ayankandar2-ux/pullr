@@ -332,7 +332,7 @@ class NewPipeUtil(context: Context) {
             val formats : ArrayList<Format> = ArrayList()
 
 
-            if(sharedPreferences.getString("formats_source", "yt-dlp") == "newpipe" || ignoreFormatPreference){
+            if(sharedPreferences.getString("formats_source", "newpipe") == "newpipe" || ignoreFormatPreference){
                 if (stream.audioStreams.isNotEmpty()){
                     stream.audioStreams = stream.audioStreams.sortedByDescending { it.bitrate }
                     for (f in 0 until stream.audioStreams.size){

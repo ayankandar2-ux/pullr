@@ -365,7 +365,7 @@ class FormatSelectionBottomSheetDialog(
 
                 val availableSources = resources.getStringArray(R.array.formats_source)
                 val availableSourcesValues = resources.getStringArray(R.array.formats_source_values)
-                val currentSource = currentFormatSource ?: sharedPreferences.getString("formats_source", "yt-dlp")
+                val currentSource = currentFormatSource ?: sharedPreferences.getString("formats_source", "newpipe")
                 formatSourceLinear.isVisible = true
                 availableSources.forEachIndexed { idx, it ->
                     val txt = requireActivity().layoutInflater.inflate(R.layout.selectable_textview_filter, null) as TextView
