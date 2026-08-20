@@ -345,6 +345,7 @@ object RuntimeManager {
         } catch (e: IOException) {
             throw ExecuteException(e)
         }
+        val spawnTime = System.currentTimeMillis() - startTime
 
         return try {
             val stdOutProcessor = StreamProcessExtractor(outBuffer, process.inputStream, callback)
@@ -367,7 +368,7 @@ object RuntimeManager {
                 throw ExecuteException(err)
             }
 
-            ExecuteResponse(fullCommand, exitCode, System.currentTimeMillis() - startTime, out, err)
+            ExecuteResponse(fullCommand, exitCode, System.currentTimeMillis() - startTime, spawnTime, out, err)
         } catch (e: InterruptedException) {
             process.destroy()
             throw e

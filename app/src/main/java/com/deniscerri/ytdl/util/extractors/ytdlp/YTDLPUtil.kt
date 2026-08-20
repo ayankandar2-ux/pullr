@@ -509,6 +509,19 @@ class YTDLPUtil(private val context: Context, private val commandTemplateDao: Co
         }
 
         val res = RuntimeManager.getInstance().execute(request)
+
+        val networkTime = res.elapsedTime - res.spawnTime
+        Log.i("YTDLP_TIMING", "getFormats($url): total=${res.elapsedTime}ms spawn=${res.spawnTime}ms network/extract=${networkTime}ms")
+        if (sharedPreferences.getBoolean("log_downloads", false)) {
+            handler.post {
+                Toast.makeText(
+                    context,
+                    "Fetch: ${res.elapsedTime}ms total (startup: ${res.spawnTime}ms, network: ${networkTime}ms)",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+
         val results: Array<String?> = try {
             res.out.split(System.lineSeparator()).toTypedArray()
         } catch (e: Exception) {
