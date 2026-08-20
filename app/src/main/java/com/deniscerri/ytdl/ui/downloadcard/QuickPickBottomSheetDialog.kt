@@ -24,6 +24,9 @@ import com.deniscerri.ytdl.database.viewmodel.DownloadViewModel
 import com.deniscerri.ytdl.database.viewmodel.FormatViewModel
 import com.deniscerri.ytdl.database.viewmodel.ResultViewModel
 import com.deniscerri.ytdl.util.FileUtil
+import com.deniscerri.ytdl.util.InstantPreviewFetcher
+import com.deniscerri.ytdl.util.Extensions.isYoutubeURL
+import com.deniscerri.ytdl.util.Extensions.loadThumbnail
 import com.facebook.shimmer.ShimmerFrameLayout
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -94,6 +97,9 @@ class QuickPickBottomSheetDialog : BottomSheetDialogFragment() {
 
         val shimmer = view.findViewById<ShimmerFrameLayout>(R.id.quick_pick_shimmer)
         val content = view.findViewById<LinearLayout>(R.id.quick_pick_content)
+        val videoPreviewRow = view.findViewById<LinearLayout>(R.id.quick_pick_video_preview)
+        val videoPreviewThumbnail = view.findViewById<android.widget.ImageView>(R.id.quick_pick_video_thumbnail)
+        val videoPreviewTitle = view.findViewById<TextView>(R.id.quick_pick_video_title)
 
         val optionMusicFast = view.findViewById<LinearLayout>(R.id.option_music_fast)
         val optionMusicMp3 = view.findViewById<LinearLayout>(R.id.option_music_mp3)
@@ -114,6 +120,27 @@ class QuickPickBottomSheetDialog : BottomSheetDialogFragment() {
         val moreFormatsCount = view.findViewById<TextView>(R.id.more_formats_count)
         val advancedBtn = view.findViewById<TextView>(R.id.quick_pick_advanced)
         val downloadBtn = view.findViewById<MaterialButton>(R.id.quick_pick_button)
+
+        // Instant preview: a single lightweight oEmbed request (title + thumbnail, no yt-dlp
+        // process) so the sheet shows something real right away, while the full format list
+        // (which genuinely needs yt-dlp and takes longer) keeps loading underneath.
+        if (result.title.isNotBlank()) {
+            videoPreviewTitle.text = result.title
+            videoPreviewThumbnail.loadThumbnail(false, result.thumb)
+            videoPreviewRow.visibility = View.VISIBLE
+        } else if (result.url.isYoutubeURL()) {
+            CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+                val preview = InstantPreviewFetcher.fetchYoutubeOembed(result.url)
+                if (preview != null && isAdded) {
+                    withContext(Dispatchers.Main) {
+                        if (!isAdded) return@withContext
+                        videoPreviewTitle.text = preview.title
+                        preview.thumbnailUrl?.let { videoPreviewThumbnail.loadThumbnail(false, it) }
+                        videoPreviewRow.visibility = View.VISIBLE
+                    }
+                }
+            }
+        }
 
         fun refreshSelection() {
             radioMusicFast.isChecked = selectedPreset == Preset.MUSIC_FAST

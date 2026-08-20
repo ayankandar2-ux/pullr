@@ -31,6 +31,34 @@
             android:textAppearance="?attr/textAppearanceHeadlineSmall"
             android:textStyle="bold" />
 
+        <LinearLayout
+            android:id="@+id/quick_pick_video_preview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:layout_marginHorizontal="20dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/quick_pick_video_thumbnail"
+                android:layout_width="64dp"
+                android:layout_height="40dp"
+                android:scaleType="centerCrop"
+                android:background="?attr/colorSurfaceVariant" />
+
+            <TextView
+                android:id="@+id/quick_pick_video_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="12dp"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:textAppearance="?attr/textAppearanceBodyMedium" />
+        </LinearLayout>
+
         <com.facebook.shimmer.ShimmerFrameLayout
             android:id="@+id/quick_pick_shimmer"
             android:layout_width="match_parent"
