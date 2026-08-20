@@ -314,6 +314,7 @@ class ResultRepository(private val resultDao: ResultDao, commandTemplateDao: Com
 
     fun getFormats(url: String, source : String? = null) : List<Format> {
         val formatSource = source ?: sharedPreferences.getString("formats_source", "newpipe")
+        val res = if (url.isYoutubeURL()) {
             when(formatSource) {
                 "newpipe" -> {
                     val tmpRes = NewPipeUtil(context).getFormats(url)
