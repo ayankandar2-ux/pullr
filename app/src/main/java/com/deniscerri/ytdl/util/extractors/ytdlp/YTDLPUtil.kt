@@ -56,7 +56,10 @@ class YTDLPUtil(private val context: Context, private val commandTemplateDao: Co
     companion object {
         // Defaults to the "android" client only: it's one of the fastest for plain video/audio
         // extraction since it skips the web signature-decryption step yt-dlp otherwise performs.
-        const val DEFAULT_PLAYER_CLIENTS = """[{"playerClient":"android","poTokens":[],"enabled":true,"useOnlyPoToken":false,"urlRegex":[]}]"""
+        // "tv" client currently doesn't require a PO token for format extraction (unlike "android",
+        // which increasingly does — without one it can return an empty/stripped format list silently).
+        // This is an active arms race on YouTube's side, so revisit if it stops working.
+        const val DEFAULT_PLAYER_CLIENTS = """[{"playerClient":"tv","poTokens":[],"enabled":true,"useOnlyPoToken":false,"urlRegex":[]}]"""
     }
 
     private fun YTDLRequest.applyDefaultOptionsForFetchingData(url: String?) {
