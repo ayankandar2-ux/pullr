@@ -13,6 +13,7 @@ import com.deniscerri.ytdl.util.Extensions.hasReachedEnd
 import com.deniscerri.ytdl.util.NotificationUtil
 import com.deniscerri.ytdl.util.ObserveAlarmScheduler
 import com.deniscerri.ytdl.util.ThemeUtil
+import com.deniscerri.ytdl.util.UpdateUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -37,6 +38,20 @@ class App : Application() {
                 if(appVer.isEmpty() || appVer != BuildConfig.VERSION_NAME){
                     sharedPreferences.edit(commit = true){
                         putString("version", BuildConfig.VERSION_NAME)
+                    }
+                }
+
+                // Was previously only checked from MainActivity, so users who only ever use
+                // the share popup (never opening the app's home screen) never got yt-dlp
+                // updates - even though YouTube-side breakage gets patched in yt-dlp releases
+                // frequently. Runs quietly in the background; safe to skip on any failure.
+                if (sharedPreferences.getBoolean("auto_update_ytdlp", true)) {
+                    runCatching {
+                        val hasActiveQueuedDownloads = DBManager.getInstance(this@App)
+                            .downloadDao.getDownloadsCountByStatus(listOf("Active", "Queued")) > 0
+                        if (!hasActiveQueuedDownloads) {
+                            UpdateUtil(this@App).updateYTDL()
+                        }
                     }
                 }
             }catch (e: Exception){
